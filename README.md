@@ -38,3 +38,8 @@
    };
    ```
 
+
+## Reference
+
+- [Deploy your Worker to Cloudflare](https://developers.cloudflare.com/workers/wrangler/commands/#deploy)
+- [System environment variables](https://developers.cloudflare.com/workers/wrangler/system-environment-variables/)
