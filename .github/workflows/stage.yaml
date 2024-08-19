@@ -16,8 +16,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Publish
         uses: cloudflare/wrangler-action@v3
+        env:
+          MIRROR_DOMAIN: ${{ secrets.MIRROR_DOMAIN || 'mirror.xxxx.cn' }}
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{secrets.CF_ACCOUNT_ID}}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          vars:
+            MIRROR_DOMAIN
           command: deploy --env staging --minify src/index.js
           environment: staging

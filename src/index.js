@@ -7,23 +7,24 @@ const dockerHub = "https://registry-1.docker.io";
 
 const routes = {
   // production
-  "docker.libcuda.so": dockerHub,
-  "quay.libcuda.so": "https://quay.io",
-  "gcr.libcuda.so": "https://gcr.io",
-  "k8s-gcr.libcuda.so": "https://k8s.gcr.io",
-  "k8s.libcuda.so": "https://registry.k8s.io",
-  "ghcr.libcuda.so": "https://ghcr.io",
-  "cloudsmith.libcuda.so": "https://docker.cloudsmith.io",
-
+  ["docker." + MIRROR_DOMAIN]: dockerHub,
+  ["quay." + MIRROR_DOMAIN]: "https://quay.io",
+  ["gcr." + MIRROR_DOMAIN]: "https://gcr.io",
+  ["k8s-gcr." + MIRROR_DOMAIN]: "https://k8s.gcr.io",
+  ["k8s." + MIRROR_DOMAIN]: "https://registry.k8s.io",
+  ["ghcr." + MIRROR_DOMAIN]: "https://ghcr.io",
+  ["cloudsmith." + MIRROR_DOMAIN]: "https://docker.cloudsmith.io",
+  ["ecr." + MIRROR_DOMAIN]: "https://public.ecr.aws",
+  ["gitlab." + MIRROR_DOMAIN]: "https://registry.gitlab.com",
   // staging
-  "docker-staging.libcuda.so": dockerHub,
+  ["docker-staging" + MIRROR_DOMAIN]: dockerHub,
 };
 
 function routeByHosts(host) {
   if (host in routes) {
     return routes[host];
   }
-  if (MODE == "debug") {
+  if (MODE === "debug") {
     return TARGET_UPSTREAM;
   }
   return "";
@@ -44,7 +45,7 @@ async function handleRequest(request) {
   }
   const isDockerHub = upstream == dockerHub;
   const authorization = request.headers.get("Authorization");
-  if (url.pathname == "/v2/") {
+  if (url.pathname === "/v2/") {
     const newUrl = new URL(upstream + "/v2/");
     const headers = new Headers();
     if (authorization) {
@@ -57,7 +58,7 @@ async function handleRequest(request) {
       redirect: "follow",
     });
     if (resp.status === 401) {
-      if (MODE == "debug") {
+      if (MODE === "debug") {
         headers.set(
           "Www-Authenticate",
           `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`
@@ -77,7 +78,7 @@ async function handleRequest(request) {
     }
   }
   // get token
-  if (url.pathname == "/v2/auth") {
+  if (url.pathname === "/v2/auth") {
     const newUrl = new URL(upstream + "/v2/");
     const resp = await fetch(newUrl.toString(), {
       method: "GET",
@@ -107,7 +108,7 @@ async function handleRequest(request) {
   // Example: /v2/busybox/manifests/latest => /v2/library/busybox/manifests/latest
   if (isDockerHub) {
     const pathParts = url.pathname.split("/");
-    if (pathParts.length == 5) {
+    if (pathParts.length === 5) {
       pathParts.splice(2, 0, "library");
       const redirectUrl = new URL(url);
       redirectUrl.pathname = pathParts.join("/");
@@ -129,7 +130,7 @@ function parseAuthenticate(authenticateStr) {
   // match strings after =" and before "
   const re = /(?<=\=")(?:\\.|[^"\\])*(?=")/g;
   const matches = authenticateStr.match(re);
-  if (matches == null || matches.length < 2) {
+  if (matches === null || matches.length < 2) {
     throw new Error(`invalid Www-Authenticate Header: ${authenticateStr}`);
   }
   return {
