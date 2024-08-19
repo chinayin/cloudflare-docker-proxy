@@ -1,0 +1,4 @@
+server = "https://registry.gitlab.com"
+
+[host."https://gitlab.mirror.xxxx.cn"]
+  capabilities = ["pull", "resolve"]

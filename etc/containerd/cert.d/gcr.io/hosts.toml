@@ -1,0 +1,4 @@
+server = "https://gcr.io"
+
+[host."https://gcr.mirror.xxxx.cn"]
+  capabilities = ["pull", "resolve"]
