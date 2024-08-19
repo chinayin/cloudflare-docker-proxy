@@ -11,29 +11,29 @@ local_protocol = "http"
 [env.dev.vars]
 MODE = "debug"
 TARGET_UPSTREAM = "https://registry-1.docker.io"
-MIRROR_DOMAIN = "mirror.xxxx.cn"
+MIRROR_DOMAIN = "mirror.uhomesx.cn"
 
 [env.production]
 name = "cloudflare-docker-proxy"
 routes = [
-  { pattern = "docker.mirror.xxx.cn", custom_domain = true },
-  { pattern = "gitlab.mirror.xxx.cn", custom_domain = true },
-  { pattern = "gcr.mirror.xxx.cn", custom_domain = true },
-  { pattern = "k8s.mirror.xxx.cn", custom_domain = true },
+  { pattern = "docker.mirror.uhomesx.cn", custom_domain = true },
+  { pattern = "gitlab.mirror.uhomesx.cn", custom_domain = true },
+  { pattern = "gcr.mirror.uhomesx.cn", custom_domain = true },
+  { pattern = "k8s.mirror.uhomesx.cn", custom_domain = true },
 ]
 
 [env.production.vars]
 MODE = "production"
 TARGET_UPSTREAM = ""
-MIRROR_DOMAIN = "mirror.xxxx.cn"
+MIRROR_DOMAIN = "mirror.uhomesx.cn"
 
 [env.staging]
 name = "cloudflare-docker-proxy-staging"
 route = [
-  { pattern = "docker-staging.mirror.xxx.cn", custom_domain = true }
+  { pattern = "docker-staging.mirror.uhomesx.cn", custom_domain = true }
 ]
 
 [env.staging.vars]
 MODE = "staging"
 TARGET_UPSTREAM = ""
-MIRROR_DOMAIN = "mirror.xxxx.cn"
+MIRROR_DOMAIN = "mirror.uhomesx.cn"
