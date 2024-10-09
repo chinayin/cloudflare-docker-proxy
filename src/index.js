@@ -17,14 +17,14 @@ const routes = {
   ["ecr." + MIRROR_DOMAIN]: "https://public.ecr.aws",
   ["gitlab." + MIRROR_DOMAIN]: "https://registry.gitlab.com",
   // staging
-  ["docker-staging" + MIRROR_DOMAIN]: dockerHub,
+  ["docker-staging." + MIRROR_DOMAIN]: dockerHub,
 };
 
 function routeByHosts(host) {
   if (host in routes) {
     return routes[host];
   }
-  if (MODE === "debug") {
+  if (MODE == "debug") {
     return TARGET_UPSTREAM;
   }
   return "";
@@ -45,7 +45,7 @@ async function handleRequest(request) {
   }
   const isDockerHub = upstream == dockerHub;
   const authorization = request.headers.get("Authorization");
-  if (url.pathname === "/v2/") {
+  if (url.pathname == "/v2/") {
     const newUrl = new URL(upstream + "/v2/");
     const headers = new Headers();
     if (authorization) {
@@ -58,27 +58,12 @@ async function handleRequest(request) {
       redirect: "follow",
     });
     if (resp.status === 401) {
-      if (MODE === "debug") {
-        headers.set(
-          "Www-Authenticate",
-          `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`
-        );
-      } else {
-        headers.set(
-          "Www-Authenticate",
-          `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`
-        );
-      }
-      return new Response(JSON.stringify({ message: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: headers,
-      });
-    } else {
-      return resp;
+      return responseUnauthorized(url);
     }
+    return resp;
   }
   // get token
-  if (url.pathname === "/v2/auth") {
+  if (url.pathname == "/v2/auth") {
     const newUrl = new URL(upstream + "/v2/");
     const resp = await fetch(newUrl.toString(), {
       method: "GET",
@@ -108,7 +93,7 @@ async function handleRequest(request) {
   // Example: /v2/busybox/manifests/latest => /v2/library/busybox/manifests/latest
   if (isDockerHub) {
     const pathParts = url.pathname.split("/");
-    if (pathParts.length === 5) {
+    if (pathParts.length == 5) {
       pathParts.splice(2, 0, "library");
       const redirectUrl = new URL(url);
       redirectUrl.pathname = pathParts.join("/");
@@ -122,7 +107,11 @@ async function handleRequest(request) {
     headers: request.headers,
     redirect: "follow",
   });
-  return await fetch(newReq);
+  const resp = await fetch(newReq);
+  if (resp.status == 401) {
+    return responseUnauthorized(url);
+  }
+  return resp;
 }
 
 function parseAuthenticate(authenticateStr) {
@@ -130,7 +119,7 @@ function parseAuthenticate(authenticateStr) {
   // match strings after =" and before "
   const re = /(?<=\=")(?:\\.|[^"\\])*(?=")/g;
   const matches = authenticateStr.match(re);
-  if (matches === null || matches.length < 2) {
+  if (matches == null || matches.length < 2) {
     throw new Error(`invalid Www-Authenticate Header: ${authenticateStr}`);
   }
   return {
@@ -147,9 +136,28 @@ async function fetchToken(wwwAuthenticate, scope, authorization) {
   if (scope) {
     url.searchParams.set("scope", scope);
   }
-  headers = new Headers();
+  const headers = new Headers();
   if (authorization) {
     headers.set("Authorization", authorization);
   }
-  return await fetch(url, { method: "GET", headers: headers });
+  return await fetch(url, {method: "GET", headers: headers});
+}
+
+function responseUnauthorized(url) {
+  const headers = new (Headers);
+  if (MODE == "debug") {
+    headers.set(
+      "Www-Authenticate",
+      `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`
+    );
+  } else {
+    headers.set(
+      "Www-Authenticate",
+      `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`
+    );
+  }
+  return new Response(JSON.stringify({message: "UNAUTHORIZED"}), {
+    status: 401,
+    headers: headers,
+  });
 }

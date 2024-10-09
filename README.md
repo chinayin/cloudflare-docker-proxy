@@ -37,7 +37,7 @@
      "ghcr.mirror.xxxx.cn": "https://ghcr.io",
    };
    ```
-   
+
 ## Usage
 
 1. cd `/etc/containerd`
@@ -55,7 +55,7 @@
 2. `hosts.toml`
    ```toml
    server = "https:/registry-1.docker.io"
-   
+
    [host."https://docker.mirror.xxxx.cn"]
      capabilities = ["pull", "resolve"]
    ```
@@ -72,7 +72,7 @@
    crictl pull registry.gitlab.com/gitlab-org/gitlab-runner:alpine
    ```
 
-## Reference
+## References
 
 - [Deploy your Worker to Cloudflare](https://developers.cloudflare.com/workers/wrangler/commands/#deploy)
 - [System environment variables](https://developers.cloudflare.com/workers/wrangler/system-environment-variables/)
