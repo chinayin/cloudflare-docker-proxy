@@ -6,10 +6,10 @@
   "author": "ciiiii <allen.cccccnm@gmail.com>",
   "dependencies": {},
   "devDependencies": {
-    "prettier": "^2.8.8",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^4.10.0",
-    "wrangler": "^3.80.2"
+    "prettier": "^3.7.4",
+    "webpack": "^5.103.0",
+    "webpack-cli": "^6.0.1",
+    "wrangler": "^4.53.0"
   },
   "scripts": {
     "format": "prettier --write '**/*.{js,css,json,md}'",
